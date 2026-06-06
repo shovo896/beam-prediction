@@ -1,0 +1,194 @@
+\section{Results and Discussion}
+\label{sec:results}
+
+\subsection{Experimental Comparability}
+
+The present implementation evaluates the same four sensing modalities studied
+in \cite{charan2022drone}: camera image, GPS position, GPS position with drone
+height, and GPS position with height and distance. Accordingly, the comparison
+focuses on top-$k$ beam prediction accuracy.
+
+The results should be interpreted as a comparative implementation rather than
+an exact reproduction of \cite{charan2022drone}. The reference study
+downsampled the original 64-element received-power vector to a 32-beam
+classification problem and used 8,402 training and 3,602 test samples. In
+contrast, the current position-family experiments use 6,832 training, 3,416
+validation, and 1,139 test samples, while the implemented output layers contain
+64 or 65 units. Furthermore, \cite{charan2022drone} used a two-hidden-layer
+MLP with a batch size of 32 for the position-based models, whereas the present
+implementation uses three 512-unit hidden layers and a batch size of 128. For
+617 of the 11,387 position-family samples, the raw height and distance files
+were unavailable; these values were imputed using training-set medians. These
+differences prevent a strictly controlled one-to-one accuracy comparison.
+
+\subsection{Beam Prediction Accuracy}
+
+\begin{table}[t]
+\caption{Top-$k$ Accuracy of the Present Implementation}
+\label{tab:present_results}
+\centering
+\begin{tabular}{lcccc}
+\hline
+\textbf{Modality} & \textbf{Top-1} & \textbf{Top-2} &
+\textbf{Top-3} & \textbf{Top-5} \\
+ & \textbf{(\%)} & \textbf{(\%)} & \textbf{(\%)} & \textbf{(\%)} \\
+\hline
+Position & 57.59 & 82.00 & 91.92 & 97.81 \\
+Position + Height & 69.71 & 89.03 & 95.17 & 99.03 \\
+Position + Height + Distance & 74.19 & 89.99 & 96.05 & 98.95 \\
+Image, refined ResNet-50 & \textbf{88.32} & \textbf{97.81} &
+\textbf{99.56} & \textbf{99.82} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{figures/ieee_findings_comparison.pdf}
+\caption{Beam prediction accuracy comparison. Panel (a) reports the complete
+Top-$k$ results of the present implementation. Panel (b) compares only the
+metrics for which the reference paper provides explicit numerical values.}
+\label{fig:findings_comparison}
+\end{figure*}
+
+As shown in Table~\ref{tab:present_results}, the image-based model achieves
+the strongest Top-1 performance, followed by the position-height-distance and
+position-height models. The position-only model produces the lowest Top-1
+accuracy. This trend is also illustrated in
+Fig.~\ref{fig:findings_comparison}. The ranking is consistent with
+\cite{charan2022drone}, which
+reported that vision-aided beam prediction outperformed the position-based
+alternatives and that position alone was insufficient for reliable drone beam
+prediction.
+
+\begin{table}[t]
+\caption{Direct Comparison With Numeric Results Reported in
+\cite{charan2022drone}}
+\label{tab:reference_comparison}
+\centering
+\begin{tabular}{lccc}
+\hline
+\textbf{Metric} & \textbf{Reference} & \textbf{Present} &
+\textbf{Difference} \\
+ & \textbf{(\%)} & \textbf{(\%)} & \textbf{(p.p.)} \\
+\hline
+Image Top-1 & 86.32 & \textbf{88.32} & \textbf{+2.00} \\
+Image Top-3 & 99.41 & \textbf{99.56} & \textbf{+0.15} \\
+Image Top-5 & 99.69 & \textbf{99.82} & \textbf{+0.13} \\
+Position Top-1 & $\approx$59 & 57.59 & $\approx$-1.41 \\
+\hline
+\end{tabular}
+\end{table}
+
+The refined image model exceeds the numerical image results reported in
+\cite{charan2022drone} for all directly comparable metrics. Its Top-1
+accuracy improves from 86.32\% to 88.32\%, corresponding to an absolute gain
+of 2.00 percentage points. The Top-3 and Top-5 gains are smaller because both
+implementations already operate near saturation at these values. The
+position-only result of 57.59\% is close to, but below, the approximately 59\%
+result reported in \cite{charan2022drone}. This agreement supports the
+reference study's conclusion that practical GPS position alone does not fully
+characterize the optimal beam for a drone with three-dimensional mobility.
+
+\subsection{Effect of Height and Distance}
+
+\begin{table}[t]
+\caption{Top-1 Improvement Relative to Position-Only Prediction}
+\label{tab:modality_gain}
+\centering
+\begin{tabular}{lcc}
+\hline
+\textbf{Added Modality} & \textbf{Absolute Gain} & \textbf{Relative Gain} \\
+ & \textbf{(p.p.)} & \textbf{(\%)} \\
+\hline
+Height & +12.12 & +21.04 \\
+Height and Distance & +16.59 & +28.81 \\
+\hline
+\end{tabular}
+\end{table}
+
+Adding height increases Top-1 accuracy from 57.59\% to 69.71\%, yielding a
+12.12-percentage-point improvement. This result lies within the approximate
+10--14-percentage-point gain for combined modalities reported in
+\cite{charan2022drone}. Adding distance further increases Top-1 accuracy to
+74.19\%, producing a 16.59-percentage-point gain over position alone and a
+4.48-percentage-point gain over position-height.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/top1_modality_comparison.pdf}
+\caption{Top-1 accuracy improvement as height, distance, and image sensing are
+introduced.}
+\label{fig:top1_modality_comparison}
+\end{figure}
+
+The improvement demonstrates that height and distance provide complementary
+geometric information that is not sufficiently represented by noisy
+two-dimensional GPS coordinates. Compared with position-height, adding
+distance improves Top-1, Top-2, and Top-3 accuracy by 4.48, 0.97, and 0.88
+percentage points, respectively. Its Top-5 accuracy decreases by only 0.09
+percentage points, corresponding approximately to one sample in the current
+test set; this difference should not be interpreted as statistically
+significant.
+
+\subsection{Vision-Aided Prediction}
+
+The refined ResNet-50 achieves 88.32\% Top-1 accuracy, exceeding the strongest
+position-family model by 14.14 percentage points and the position-only model
+by 30.73 percentage points. This result reinforces the principal finding of
+\cite{charan2022drone}: an RGB image captures the drone's apparent location
+and orientation within the base-station field of view more effectively than
+individual scalar sensing measurements. The image model also achieves 99.56\%
+Top-3 and 99.82\% Top-5 accuracy. Consequently, restricting beam training to
+the model's five highest-ranked candidates would retain the correct beam for
+nearly all tested samples.
+
+The present image model was refined from its best checkpoint using selective
+unfreezing, frozen batch-normalization statistics, shuffled training samples,
+and checkpoint averaging. This refinement increased test Top-1 accuracy from
+87.62\% to 88.32\%, an absolute gain of 0.70 percentage points, while
+preserving the previous checkpoint whenever validation performance did not
+improve.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/image_model_refinement.pdf}
+\caption{Image-model refinement and direct comparison with the image metrics
+reported in \cite{charan2022drone}.}
+\label{fig:image_model_refinement}
+\end{figure}
+
+\subsection{Principal Findings and Limitations}
+
+The comparative evaluation supports the following findings. First,
+position-only prediction remains the weakest sensing-aided approach,
+confirming that two-dimensional GPS data alone is inadequate for robust drone
+beam selection. Second, height and distance materially improve Top-1
+accuracy, validating the conclusion in \cite{charan2022drone} that additional
+geometric sensing information is important for three-dimensional drone
+mobility. Third, vision-aided prediction remains the strongest modality and
+exceeds the reference image Top-1 accuracy by 2.00 percentage points in the
+present implementation. Finally, Top-3 and Top-5 image accuracies are close to
+100\% in both studies, indicating that sensing-aided prediction can
+substantially reduce exhaustive beam-training overhead.
+
+The observed differences should not be presented as evidence of statistical
+superiority over \cite{charan2022drone} without additional controlled
+experiments. The implementations differ in beam-class definition, dataset
+split, model depth, batch size, image initialization strategy, optimization
+procedure, and treatment of missing sensor values. In addition, the present
+results are based on saved single-run outputs; repeated trials with fixed
+splits and confidence intervals have not yet been reported. Therefore, the
+defensible conclusion is that the present findings reproduce the qualitative
+modality ranking reported in \cite{charan2022drone} and achieve strong
+quantitative results under a modified experimental configuration.
+
+% Add this entry to the paper's bibliography.
+\begin{thebibliography}{1}
+\bibitem{charan2022drone}
+G. Charan, A. Hredzak, C. Stoddard, B. Berrey, M. Seth, H. Nunez, and
+A. Alkhateeb, ``Towards real-world 6G drone communication: Position and
+camera aided beam prediction,'' in \emph{Proc. IEEE Global Communications
+Conf. (GLOBECOM)}, 2022, pp. 2951--2956,
+doi: 10.1109/GLOBECOM48099.2022.10000718.
+\end{thebibliography}

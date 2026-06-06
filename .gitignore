@@ -23,6 +23,7 @@ data/
 dataset/
 checkpoints/
 outputs/
+figures/
 *.ckpt
 *.pth
 *.pt
