@@ -26,3 +26,29 @@ outputs/
 *.ckpt
 *.pth
 *.pt
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS and editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Local data, models, and experiment artifacts
+data/
+dataset/
+checkpoints/
+outputs/
+*.ckpt
+*.pth
+*.pt

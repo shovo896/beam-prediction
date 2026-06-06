@@ -15,13 +15,9 @@ features, and deep-learning models.
 ## Environment
 
 The notebooks are designed for a Python/Jupyter environment with the project
-dataset available locally or in Google Colab. Core dependencies include:
-
-- NumPy and pandas
-- PyTorch and torchvision
-- scikit-learn
-- Matplotlib and Seaborn
-- Jupyter
+dataset available locally or in Google Colab. Core dependencies include
+NumPy, pandas, PyTorch, torchvision, scikit-learn, Matplotlib, Seaborn, and
+Jupyter.
 
 Dataset paths used by the notebooks may need to be updated for your
 environment before execution.
