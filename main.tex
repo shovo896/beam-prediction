@@ -21,12 +21,16 @@ author@email.com}
 \maketitle
 
 \begin{abstract}
-This paper evaluates position- and vision-aided beam prediction using camera
-images, GPS position, drone height, and distance information. The results show
-that adding geometric sensing information improves position-based prediction,
-while the refined image-based model achieves the strongest overall accuracy.
-The findings are compared with previously reported results for real-world
-drone communication.
+This paper comparatively evaluates position- and vision-aided beam prediction
+using camera images, GPS position, drone height, and distance information.
+Position-only prediction achieves 57.59\% Top-1 accuracy, which increases to
+74.19\% when height and distance are included. The refined image model achieves
+88.32\% Top-1 accuracy, exceeding the directly comparable reference result by
+2.00 percentage points. A comparison of the experimental setups identifies
+differences in beam-class definition, dataset split, model architecture, batch
+size, and missing-data treatment. The results therefore demonstrate consistent
+modality-level findings under a modified setup rather than an exact
+reproduction of the reference study.
 \end{abstract}
 
 \begin{IEEEkeywords}

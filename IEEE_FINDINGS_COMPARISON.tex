@@ -13,36 +13,39 @@ differences. The reference study downsampled the original 64-element
 received-power vector to a 32-beam classification problem and used 8,402
 training and 3,602 test samples. In contrast, the current position-family
 experiments use 6,832 training, 3,416 validation, and 1,139 test samples,
-while the implemented output layers contain 64 or 65 units.
+while the implemented output layers contain 64 or 65 units. The reference and
+present image models both use ResNet-50, but the present model is additionally
+refined using selective unfreezing, frozen batch-normalization statistics, and
+checkpoint averaging.
 
-\begin{table*}[!t]
+\begin{table}[!t]
 \caption{Experimental Setup Comparison With the Reference Study}
 \label{tab:setup_comparison}
 \centering
-\renewcommand{\arraystretch}{1.12}
-\begin{tabular}{p{0.18\textwidth}p{0.36\textwidth}p{0.36\textwidth}}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{p{0.20\columnwidth}p{0.32\columnwidth}p{0.34\columnwidth}}
 \hline
-\textbf{Aspect} & \textbf{Reference Study \cite{charan2022drone}} &
-\textbf{Present Implementation} \\
+\textbf{Aspect} & \textbf{Reference \cite{charan2022drone}} &
+\textbf{Present Work} \\
 \hline
-Sensing modalities & Camera image, GPS position, position with height, and
-position with height and distance & Same four sensing modalities \\
-Beam-class definition & Original 64-element received-power vector
-downsampled to 32 beam classes & Output layers contain 64 or 65 classes,
-depending on the implemented model \\
-Dataset split & 8,402 training and 3,602 test samples & 6,832 training,
-3,416 validation, and 1,139 test samples for the position-family experiments \\
-Position-model architecture & Two-hidden-layer MLP & Three hidden layers,
-each containing 512 units \\
-Position-model batch size & 32 & 128 \\
-Missing height and distance values & Not reported as part of the reference
-setup & 617 of 11,387 position-family samples imputed using training-set
-medians \\
-Evaluation metric & Top-$k$ beam prediction accuracy & Top-1, Top-2, Top-3,
-and Top-5 beam prediction accuracy \\
+Modalities & Image; position; position + height; position + height + distance
+& Same four modalities \\
+Beam classes & 32, downsampled from 64 power values & 64 or 65, depending on
+the model \\
+Position-family split & 8,402 train; 3,602 test (70/30) & 6,832 train; 3,416
+validation; 1,139 test (60/30/10) \\
+Position MLP & Two 512-unit hidden layers & Three 512-unit hidden layers \\
+Position batch size & 32 & 128 \\
+Vision model & ResNet-50 & Refined ResNet-50 \\
+Vision batch size & 32 & 64 \\
+Missing height/distance & Not reported & 617 of 11,387 samples; median
+imputation \\
+Metrics & Top-$k$ accuracy & Top-1, Top-2, Top-3, and Top-5 accuracy \\
 \hline
 \end{tabular}
-\end{table*}
+\end{table}
 
 The present models therefore should be interpreted as a comparative
 implementation rather than an exact reproduction of \cite{charan2022drone}.
